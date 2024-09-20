@@ -51,7 +51,7 @@ RabbitMQ is integrated to facilitate **Pub/Sub messaging** and **event-driven ar
 1. Clone the repository:
    ```bash
    git clone https://github.com/EvandroPetrus/Standard-API.git
-   cd your-repo-name
+   cd Standard-API
    ```
 
 2. Build the Docker containers:
