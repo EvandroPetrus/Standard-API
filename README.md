@@ -84,7 +84,10 @@ RabbitMQ is integrated to facilitate **Pub/Sub messaging** and **event-driven ar
 src/
 │
 ├── Api/
-│   └── Controllers/
+│   ├── Controllers/
+│   ├── Exceptions/
+│   ├── Extensions/
+│   └── Middlewares/
 │
 ├── Application/
 │   ├── Interfaces/
@@ -93,16 +96,33 @@ src/
 ├── Domain/
 │   ├── Entities/
 │   ├── ValueObjects/
-│   └── DomainEvents/
+│   ├── DomainEvents/
+│   ├── DTOs/
+│   │   ├── Request/
+│   │   └── Response/
+│   ├── Interfaces/
+│   │   ├── Repositories/
+│   │   └── Services/
+│   └── Validator/
 │
 ├── Infrastructure/
+│   ├── AutoMapper/
 │   ├── Repositories/
 │   ├── Messaging/    # RabbitMQ integrations
-│   └── Persistence/  # Database configurations
+│   ├── Persistence/  # Database configurations
+│   │   ├── SQL/
+│   │   │   ├── Configurations/
+│   │   │   └── Migrations/
+│   │   └── NoSQL/
+│   │       └── Persistences/
+│
+├── Service/
+│   └── Services/
 │
 └── Docker/
     ├── docker-compose.yml
     └── Dockerfile
+
 ```
 
 ## Domain-Driven Design (DDD)
