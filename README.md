@@ -45,6 +45,7 @@ RabbitMQ is integrated to facilitate **Pub/Sub messaging** and **event-driven ar
 - [Docker](https://www.docker.com/get-started)
 - [RabbitMQ](https://www.rabbitmq.com/download.html) (Docker container recommended)
 - SQL Server (or preferred database)
+- [MongoDB](https://www.mongodb.com/try/download/community) (or an Atlas cluster)
   
 ### Installation
 
