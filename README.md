@@ -65,18 +65,13 @@ RabbitMQ is integrated to facilitate **Pub/Sub messaging** and **event-driven ar
    ```
 
 ### Running the Project
-
-1. Run the migrations to set up the database:
-   ```bash
-   dotnet ef database update
-   ```
-
-2. Start the API:
+`Database will be auto-generated.`
+1. Start the API:
    ```bash
    dotnet run
    ```
 
-3. The API will be running at `http://localhost:5000`.
+2. The API will be running at `http://localhost:5000`.
 
 ## Project Structure
 
