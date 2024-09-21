@@ -1,6 +1,6 @@
 # .NET 8 API Standard Structure and Guidelines
 
-This repository provides a structured .NET 8 API utilizing **Docker**, **Domain-Driven Design (DDD)**, and **RabbitMQ**. It serves as a foundational template for building scalable, maintainable, and modular systems.
+This repository provides a structured .NET 8 API utilizing **Docker**, **Domain-Driven Design (DDD)** and **RabbitMQ**, whilst following SOLID and CCode fundamentals. It also uses the repository pattern, serving as a foundational template for building scalable, maintainable, and modular systems.
 
 ## Table of Contents
 
