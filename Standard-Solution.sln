@@ -4,14 +4,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{F47C9799-7B06-42A9-A0CA-E5075FEBB559}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yaml = docker-compose.yaml
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Standard-Solution.API", "Standard-Solution.API\Standard-Solution.API.csproj", "{7D0745B3-5E93-4375-9C8A-8B7385710931}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Standard-Solution.API", "Standard-Solution.API\Standard-Solution.API.csproj", "{7D0745B3-5E93-4375-9C8A-8B7385710931}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Standard-Solution.Domain", "Standard-Solution.Domain\Standard-Solution.Domain.csproj", "{0EB1772E-9E61-4933-9A61-1C48A84272FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Standard-Solution.Domain", "Standard-Solution.Domain\Standard-Solution.Domain.csproj", "{0EB1772E-9E61-4933-9A61-1C48A84272FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Standard-Solution.Service", "Standard-Solution.Service\Standard-Solution.Service.csproj", "{57F8BE2A-ED5C-4FCC-BB13-40D60C352BF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Standard-Solution.Service", "Standard-Solution.Service\Standard-Solution.Service.csproj", "{57F8BE2A-ED5C-4FCC-BB13-40D60C352BF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Standard-Solution.Infra", "Standard-Solution.Infra\Standard-Solution.Infra.csproj", "{B9CCDFCD-30B6-425C-B65C-4449747B59CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Standard-Solution.Infra", "Standard-Solution.Infra\Standard-Solution.Infra.csproj", "{B9CCDFCD-30B6-425C-B65C-4449747B59CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
