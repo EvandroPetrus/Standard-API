@@ -1,8 +1,8 @@
-﻿using Standard_Solution.Domain.DTOs.Request;
+﻿using AutoMapper;
+using Standard_Solution.Domain.DTOs.Request;
 using Standard_Solution.Domain.DTOs.Response;
-using Standard_Solution.Domain.Interfaces.Services;
-using AutoMapper;
 using Standard_Solution.Domain.Interfaces;
+using Standard_Solution.Domain.Interfaces.Services;
 using Standard_Solution.Domain.Models;
 
 namespace Standard_Solution.Service.Services;
@@ -30,6 +30,7 @@ public class AuthService : IAuthService
             throw new InvalidOperationException("Email '" + newUserRequest.Email + "' is already registered.");
 
         var user = _mapper.Map<User>(newUserRequest);
+        user.UserName = newUserRequest.Email;
 
         var result = await _unitOfWork.Users.InsertUser(user, newUserRequest.Password);
 
@@ -37,7 +38,7 @@ public class AuthService : IAuthService
         {
             string token = await _unitOfWork.Users.GenerateTokenVerifyEmail(user);
 
-            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "templates", "VerificarEmail.html");
+            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates", "E-mail confirmation", "VerificarEmail.html");
 
             _emailService.SendEmail(user.UserName, user.Email, templatePath, token, "Verify your email");
         }
@@ -111,7 +112,7 @@ public class AuthService : IAuthService
         if (!result.Succeeded)
             throw new InvalidOperationException("User update failed! Please check your data and try again.");
     }
-    public async Task<UserGetResponse> GetUserById(int id)
+    public async Task<UserGetResponse> GetUserById(Guid id)
     {
         User user = await _unitOfWork.Users.GetUserById(id) ?? throw new InvalidOperationException("User not found.");
 
@@ -124,7 +125,7 @@ public class AuthService : IAuthService
 
         string token = await _unitOfWork.Users.GenerateTokenResetPassword(user);
 
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "templates", "ResetPassword.html");
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates", "Password reset", "ForgotPassword.html");
 
         _emailService.SendEmail(user.UserName, user.Email, templatePath, token, "Reset your password");
     }

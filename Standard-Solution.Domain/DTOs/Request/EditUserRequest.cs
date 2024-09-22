@@ -2,5 +2,5 @@
 
 public class EditUserRequest
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

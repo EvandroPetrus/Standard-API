@@ -3,5 +3,4 @@
 public class UserSignUpRequest : UserRequestBase
 {
     public string PasswordCheck { get; set; }
-
 }
