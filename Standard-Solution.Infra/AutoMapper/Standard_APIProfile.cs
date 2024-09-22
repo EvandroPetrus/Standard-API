@@ -15,5 +15,7 @@ public class Standard_APIProfile : Profile
         CreateMap<User, UserGetResponse>()
             .ForMember(request => request.Email, opt => opt.MapFrom(model => model.UserName))
             .ReverseMap();
+        CreateMap<User, UserSignUpRequest>()
+            .ReverseMap();
     }
 }

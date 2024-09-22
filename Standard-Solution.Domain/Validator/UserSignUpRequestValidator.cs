@@ -1,5 +1,5 @@
-﻿using Standard_Solution.Domain.DTOs.Request;
-using FluentValidation;
+﻿using FluentValidation;
+using Standard_Solution.Domain.DTOs.Request;
 
 namespace Standard_Solution.Domain.Validator;
 

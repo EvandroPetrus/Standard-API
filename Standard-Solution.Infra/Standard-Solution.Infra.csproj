@@ -9,14 +9,22 @@
 
   <ItemGroup>
     <Folder Include="Contexts\NoSQL\Persistences\" />
-    <Folder Include="Contexts\SQL\Migrations\" />
   </ItemGroup>
 
   <ItemGroup>
 	  <PackageReference Include="AutoMapper" Version="13.0.1" />
 	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.1" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 	  <PackageReference Include="MongoDB.Driver" Version="2.29.0" />
+	  <PackageReference Include="Serilog" Version="4.0.1" />
+	  <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

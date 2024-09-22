@@ -29,7 +29,7 @@ namespace Standard_Solution.Infra.Repositories
         public async Task<User> GetUserByEmail(string email) =>
             await _userManager.FindByEmailAsync(email);
 
-        public async Task<User> GetUserById(int id) =>
+        public async Task<User> GetUserById(Guid id) =>
             await _userManager.FindByIdAsync(id.ToString());
 
         public async Task<IdentityResult> InsertUser(User user, string password) =>
