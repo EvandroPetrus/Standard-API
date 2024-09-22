@@ -1,6 +1,6 @@
 # .NET 8 API Standard Structure and Guidelines
 
-This repository provides a structured .NET 8 API utilizing **Docker**, **Domain-Driven Design (DDD)**, and **RabbitMQ**. It serves as a foundational template for building scalable, maintainable, and modular systems.
+This repository provides a structured .NET 8 API utilizing **Docker**, **Domain-Driven Design (DDD)** and **RabbitMQ**, whilst following SOLID and CCode fundamentals. It also uses the repository pattern, serving as a foundational template for building scalable, maintainable, and modular systems.
 
 ## Table of Contents
 
@@ -45,13 +45,14 @@ RabbitMQ is integrated to facilitate **Pub/Sub messaging** and **event-driven ar
 - [Docker](https://www.docker.com/get-started)
 - [RabbitMQ](https://www.rabbitmq.com/download.html) (Docker container recommended)
 - SQL Server (or preferred database)
+- [MongoDB](https://www.mongodb.com/try/download/community) (or an Atlas cluster)
   
 ### Installation
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/EvandroPetrus/Standard-API.git
-   cd your-repo-name
+   cd Standard-API
    ```
 
 2. Build the Docker containers:
@@ -65,18 +66,13 @@ RabbitMQ is integrated to facilitate **Pub/Sub messaging** and **event-driven ar
    ```
 
 ### Running the Project
-
-1. Run the migrations to set up the database:
-   ```bash
-   dotnet ef database update
-   ```
-
-2. Start the API:
+`Database will be auto-generated.`
+1. Start the API:
    ```bash
    dotnet run
    ```
 
-3. The API will be running at `http://localhost:5000`.
+2. The API will be running at `http://localhost:5000`.
 
 ## Project Structure
 
@@ -84,7 +80,10 @@ RabbitMQ is integrated to facilitate **Pub/Sub messaging** and **event-driven ar
 src/
 │
 ├── Api/
-│   └── Controllers/
+│   ├── Controllers/
+│   ├── Exceptions/
+│   ├── Extensions/
+│   └── Middlewares/
 │
 ├── Application/
 │   ├── Interfaces/
@@ -93,16 +92,33 @@ src/
 ├── Domain/
 │   ├── Entities/
 │   ├── ValueObjects/
-│   └── DomainEvents/
+│   ├── DomainEvents/
+│   ├── DTOs/
+│   │   ├── Request/
+│   │   └── Response/
+│   ├── Interfaces/
+│   │   ├── Repositories/
+│   │   └── Services/
+│   └── Validator/
 │
 ├── Infrastructure/
+│   ├── AutoMapper/
 │   ├── Repositories/
 │   ├── Messaging/    # RabbitMQ integrations
-│   └── Persistence/  # Database configurations
+│   ├── Persistence/  # Database configurations
+│   │   ├── SQL/
+│   │   │   ├── Configurations/
+│   │   │   └── Migrations/
+│   │   └── NoSQL/
+│   │       └── Persistences/
+│
+├── Service/
+│   └── Services/
 │
 └── Docker/
     ├── docker-compose.yml
     └── Dockerfile
+
 ```
 
 ## Domain-Driven Design (DDD)
