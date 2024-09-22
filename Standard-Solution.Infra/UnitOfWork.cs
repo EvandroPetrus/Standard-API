@@ -19,18 +19,13 @@ public class UnitOfWork : IUnitOfWork
         Users = new UsersRepository(userManager);
     }
 
-    public int Complete()
-    {
-        throw new NotImplementedException();
-    }
+    public int Complete() => Standard_SolutionDbContext.SaveChanges();
 
-    public Task CompleteAsync()
-    {
-        throw new NotImplementedException();
-    }
+    public Task CompleteAsync() => Standard_SolutionDbContext.SaveChangesAsync();
 
     public void Dispose()
     {
-        throw new NotImplementedException();
+        Standard_SolutionDbContext.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

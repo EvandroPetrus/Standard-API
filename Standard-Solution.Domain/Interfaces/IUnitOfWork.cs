@@ -6,4 +6,5 @@ public interface IUnitOfWork : IDisposable
     IUserRepository Users { get; }
     int Complete();
     Task CompleteAsync();
+    new void Dispose();
 }

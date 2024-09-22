@@ -3,6 +3,7 @@ using Standard_Solution.Domain.DTOs.Response;
 using Standard_Solution.Domain.Interfaces.Services;
 using AutoMapper;
 using Standard_Solution.Domain.Interfaces;
+using Standard_Solution.Domain.Models;
 
 namespace Standard_Solution.Service.Services;
 
@@ -23,43 +24,108 @@ public class AuthService : IAuthService
         _tokenService = tokenService;
     }
 
-    public Task ChangePassword(ChangePasswordRequest changePasswordRequest)
+    public async Task SignUpUser(UserSignUpRequest newUserRequest, string origin)
     {
-        throw new NotImplementedException();
-    }
+        if (await _unitOfWork.Users.GetUserByEmail(newUserRequest.Email) is not null)
+            throw new InvalidOperationException("Email '" + newUserRequest.Email + "' is already registered.");
 
-    public Task EditUser(EditUserRequest alteraUsuarioRequest)
-    {
-        throw new NotImplementedException();
-    }
+        var user = _mapper.Map<User>(newUserRequest);
 
-    public Task<UserGetResponse> GetUserById(string id)
-    {
-        throw new NotImplementedException();
-    }
+        var result = await _unitOfWork.Users.InsertUser(user, newUserRequest.Password);
 
-    public Task<UserLoginResponse> Login(UserLoginRequest userLoginRequest)
-    {
-        throw new NotImplementedException();
-    }
+        if (result.Succeeded)
+        {
+            string token = await _unitOfWork.Users.GenerateTokenVerifyEmail(user);
 
-    public Task SendForgotPasswordEmail(string email, string origin)
-    {
-        throw new NotImplementedException();
-    }
+            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "templates", "VerificarEmail.html");
 
-    public Task<UserExistsEmailResponse> SendVerifyEmail(string email, string origin)
-    {
-        throw new NotImplementedException();
-    }
+            _emailService.SendEmail(user.UserName, user.Email, templatePath, token, "Verify your email");
+        }
+        else
+            throw new InvalidOperationException("User registration failed! Please check user details and try again.");
 
-    public Task SignUpUser(UserSignUpRequest newUserRequest, string origin)
-    {
-        throw new NotImplementedException();
     }
-
-    public Task VerifyUserEmail(string email, string token)
+    public async Task<UserLoginResponse> Login(UserLoginRequest userLoginRequest)
     {
-        throw new NotImplementedException();
+        var user = await _unitOfWork.Users.GetUserByEmail(userLoginRequest.Email);
+
+        var validUser = await _unitOfWork.Users.CheckUserPassword(user, userLoginRequest.Password);
+
+        if (user is null || !validUser || !user.EmailConfirmed)
+            return new UserLoginResponse(false, null, null);
+
+        if (validUser)
+            return await _tokenService.GenerateCredentials(user.Email);
+        else
+            throw new InvalidOperationException("Invalid user email or password.");
+
+    }
+    public async Task<UserExistsEmailResponse> SendVerifyEmail(string email, string origin)
+    {
+        User user = await _unitOfWork.Users.GetUserByEmail(email);
+
+        if (user is null)
+            return new UserExistsEmailResponse { UserExists = false, Email = email };
+        else
+        {
+            string token = await _unitOfWork.Users.GenerateTokenVerifyEmail(user);
+
+            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "templates", "VerificarEmail.html");
+
+            _emailService.SendEmail(user.UserName, user.Email, templatePath, token, "Verify your email");
+
+            var response = _mapper.Map<User, UserExistsEmailResponse>(user);
+            response.UserExists = true;
+            return response;
+        }
+    }
+    public async Task VerifyUserEmail(string email, string token)
+    {
+        var user = await _unitOfWork.Users.GetUserByEmail(email) ?? throw new InvalidOperationException("User not found.");
+
+        var result = await _unitOfWork.Users.ConfirmUserEmail(user, token);
+
+        if (!result.Succeeded)
+            throw new InvalidOperationException("Email verification failed! Please check your email and try again.");
+        else
+            user.EmailConfirmed = true;
+
+    }
+    public async Task ChangePassword(ChangePasswordRequest changePasswordRequest)
+    {
+        User user = await _unitOfWork.Users.GetUserByEmail(changePasswordRequest.Email) ?? throw new InvalidOperationException("User not found.");
+
+        var result = await _unitOfWork.Users.ChangePassword(user, changePasswordRequest.Token.Replace(" ", "+"), changePasswordRequest.NewPassword);
+
+        if (!result.Succeeded)
+            throw new InvalidOperationException("Password change failed! Please check your email and try again.");
+    }
+    public async Task EditUser(EditUserRequest editUserRequest)
+    {
+        User user = await _unitOfWork.Users.GetUserById(editUserRequest.Id) ?? throw new InvalidOperationException("User not found.");
+
+        _mapper.Map(editUserRequest, user);
+
+        var result = await _unitOfWork.Users.EditUser(user);
+
+        if (!result.Succeeded)
+            throw new InvalidOperationException("User update failed! Please check your data and try again.");
+    }
+    public async Task<UserGetResponse> GetUserById(int id)
+    {
+        User user = await _unitOfWork.Users.GetUserById(id) ?? throw new InvalidOperationException("User not found.");
+
+        UserGetResponse response = _mapper.Map<UserGetResponse>(user);
+        return response;
+    }
+    public async Task SendForgotPasswordEmail(string email, string origin)
+    {
+        var user = await _unitOfWork.Users.GetUserByEmail(email) ?? throw new InvalidOperationException("User not found for this email.");
+
+        string token = await _unitOfWork.Users.GenerateTokenResetPassword(user);
+
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "templates", "ResetPassword.html");
+
+        _emailService.SendEmail(user.UserName, user.Email, templatePath, token, "Reset your password");
     }
 }

@@ -1,56 +1,38 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Standard_Solution.Domain.Interfaces.Repositories;
 using Standard_Solution.Domain.Models;
-        
-namespace Standard_Solution.Infra.Repositories;
 
-public class UsersRepository : IUserRepository
+namespace Standard_Solution.Infra.Repositories
 {
-    private readonly UserManager<User> _userManager;
-
-    public UsersRepository(UserManager<User> userManager)
+    public class UsersRepository(UserManager<User> userManager) : IUserRepository
     {
-        _userManager = userManager;
-    }
+        private readonly UserManager<User> _userManager = userManager;
 
-    public async Task<IdentityResult> ChangePassword(User user, string token, string password)
-        => await _userManager.ChangePasswordAsync(user, token, password);
+        public async Task<IdentityResult> ChangePassword(User user, string token, string password) =>
+            await _userManager.ChangePasswordAsync(user, token, password);
 
-    public async Task<bool> CheckUserPassword(User user, string password)
-        => await _userManager.CheckPasswordAsync(user, password);
+        public async Task<bool> CheckUserPassword(User user, string password) =>
+            await _userManager.CheckPasswordAsync(user, password);
 
-    public Task<IdentityResult> ConfirmUserEmail(User user, string token)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<IdentityResult> ConfirmUserEmail(User user, string token) =>
+            await _userManager.ConfirmEmailAsync(user, token);
 
-    public Task<IdentityResult> EditUser(User user)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<IdentityResult> EditUser(User user) =>
+            await _userManager.UpdateAsync(user);
 
-    public Task<string> GenerateTokenResetPassword(User user)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<string> GenerateTokenResetPassword(User user) =>
+            await _userManager.GeneratePasswordResetTokenAsync(user);
 
-    public Task<string> GenerateTokenVerifyEmail(User user)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<string> GenerateTokenVerifyEmail(User user) =>
+            await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-    public Task<User> GetUserByEmail(string email)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<User> GetUserByEmail(string email) =>
+            await _userManager.FindByEmailAsync(email);
 
-    public Task<User> GetUserById(string id)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<User> GetUserById(int id) =>
+            await _userManager.FindByIdAsync(id.ToString());
 
-    public Task<IdentityResult> InsertUser(User user, string password)
-    {
-        throw new NotImplementedException();
+        public async Task<IdentityResult> InsertUser(User user, string password) =>
+            await _userManager.CreateAsync(user, password);
     }
 }
