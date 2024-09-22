@@ -15,6 +15,9 @@ public class AuthController : ControllerBase
 
     public AuthController(IAuthService authService) => _authService = authService;
 
+    /// <summary>
+    /// User login endpoint.
+    /// </summary>
     [AllowAnonymous]
     [HttpPost("signin")]
     public async Task<ActionResult<UserLoginResponse>> Login([FromBody] UserLoginRequest userLoginData)
@@ -24,15 +27,19 @@ public class AuthController : ControllerBase
 
         try
         {
-            var resultadoLogin = await _authService.Login(userLoginData);
-            return Ok(resultadoLogin);
+            var loginResult = await _authService.Login(userLoginData);
+            return Ok(loginResult);
         }
         catch (Exception ex)
         {
+            // Log the exception (consider using a logging framework)
             return BadRequest(new { Message = ex.Message });
         }
     }
 
+    /// <summary>
+    /// User registration endpoint.
+    /// </summary>
     [AllowAnonymous]
     [HttpPost("signup")]
     public async Task<IActionResult> Register([FromBody] UserSignUpRequest userSignUpData)
@@ -47,10 +54,14 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
+            // Log the exception (consider using a logging framework)
             return BadRequest(new { Message = ex.Message });
         }
     }
 
+    /// <summary>
+    /// Verify user email endpoint.
+    /// </summary>
     [AllowAnonymous]
     [HttpPost("verify-user-email")]
     public async Task<IActionResult> VerifyUserEmail([FromBody] VerifyEmailRequest verifyEmailDTO)
@@ -59,6 +70,9 @@ public class AuthController : ControllerBase
         return Ok("Email verification completed successfully");
     }
 
+    /// <summary>
+    /// Reset password endpoint.
+    /// </summary>
     [AllowAnonymous]
     [HttpPut("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ChangePasswordRequest changePasswordRequest)
@@ -73,10 +87,14 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
+            // Log the exception (consider using a logging framework)
             return BadRequest(new { Message = ex.Message });
         }
     }
 
+    /// <summary>
+    /// Send email verification link endpoint.
+    /// </summary>
     [HttpGet("verify-email-send")]
     public async Task<IActionResult> VerifyEmailSend(string email)
     {
@@ -84,6 +102,9 @@ public class AuthController : ControllerBase
         return Ok("Email sent successfully");
     }
 
+    /// <summary>
+    /// Send forgot password email endpoint.
+    /// </summary>
     [AllowAnonymous]
     [HttpPost("forgot-password")]
     public async Task<IActionResult> SendForgotPasswordEmail([FromBody] ForgotPasswordRequest forgotPasswordRequest)
@@ -95,10 +116,14 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
+            // Log the exception (consider using a logging framework)
             return BadRequest(new { Message = ex.Message });
         }
     }
 
+    /// <summary>
+    /// Update user information endpoint.
+    /// </summary>
     [HttpPut("update-user/{id}")]
     public async Task<IActionResult> UpdateUser(string id, [FromBody] EditUserRequest editUserRequest)
     {
@@ -112,12 +137,16 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
+            // Log the exception (consider using a logging framework)
             return BadRequest(new { Message = ex.Message });
         }
     }
 
+    /// <summary>
+    /// Get user by ID endpoint.
+    /// </summary>
     [HttpGet("get-user-by-id/{id}")]
-    public async Task<IActionResult> GetUserById(string id)
+    public async Task<IActionResult> GetUserById(int id)
     {
         try
         {
@@ -129,6 +158,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
+            // Log the exception (consider using a logging framework)
             return BadRequest(new { Message = ex.Message });
         }
     }
