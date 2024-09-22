@@ -16,7 +16,7 @@ public static class DependencyInjectionExtension
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ITokenService, TokenService>();
-        
+
         services.Configure<MongoDbSettings>(configuration.GetSection("MongoDbSettings"));
         services.AddTransient<MongoDbContext>();
         services.AddHttpClient();

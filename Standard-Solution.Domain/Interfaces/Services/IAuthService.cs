@@ -11,5 +11,5 @@ public interface IAuthService
     Task VerifyUserEmail(string email, string token);
     Task<UserExistsEmailResponse> SendVerifyEmail(string email, string origin);
     Task EditUser(EditUserRequest alteraUsuarioRequest);
-    Task<UserGetResponse> GetUserById(int id);
+    Task<UserGetResponse> GetUserById(Guid id);
 }

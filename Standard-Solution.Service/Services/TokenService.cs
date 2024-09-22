@@ -30,7 +30,7 @@ public class TokenService : ITokenService
         DateTime thisDate = TimeZoneInfo.ConvertTime(DateTime.Now, standard_time);
 
         DateTime dateExpires = thisDate.AddHours(double.Parse(_configuration["JwtOptions:AccessTokenExpiration"]));
-        
+
         var token = GenerateToken(accessTokenClaims, dateExpires);
 
         return new UserLoginResponse(true, token, dateExpires);

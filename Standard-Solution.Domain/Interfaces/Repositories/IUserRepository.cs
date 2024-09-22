@@ -5,7 +5,7 @@ namespace Standard_Solution.Domain.Interfaces.Repositories
 {
     public interface IUserRepository
     {
-        Task<User> GetUserById(int id);
+        Task<User> GetUserById(Guid id);
         Task<User> GetUserByEmail(string email);
         Task<IdentityResult> ChangePassword(User user, string token, string password);
         Task<string> GenerateTokenResetPassword(User user);

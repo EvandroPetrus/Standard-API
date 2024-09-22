@@ -1,14 +1,24 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Serilog;
 using Standard_Solution.API.Extensions;
+using Standard_Solution.API.Filter;
 using Standard_Solution.Domain.Models;
 using Standard_Solution.Infra.Contexts.SQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSerilogConfiguration(builder.Configuration);
+builder.Host.UseSerilog();
+
 builder.Services.AddCustomCors();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwagger();
 builder.Services.AddAutoMapperProfiles();
@@ -29,26 +39,45 @@ builder.Services.AddDbContext<Standard_SolutionDbContext>(options =>
     sqlOptions => sqlOptions.MigrationsAssembly("Standard-Solution.Infra")));
 
 var app = builder.Build();
-
-// UNCOMMENT for LOCAL use **ONLY**!!!
-// (auto-applies migrations, so it can mess up with version control)
-using (var scope = app.Services.CreateScope())
+try
 {
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<Standard_SolutionDbContext>();
+    Log.Information("Starting web API");
 
-    context.Database.Migrate();
+    // UNCOMMENT for LOCAL use **ONLY**!!!
+    // (auto-applies migrations, so it can mess up with version control)
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var context = services.GetRequiredService<Standard_SolutionDbContext>();
+        var migrator = context.GetService<IMigrator>();
+        var pendingMigrations = context.Database.GetPendingMigrations();
+        if (pendingMigrations.Any())
+        {
+            foreach (var migration in pendingMigrations)
+            {
+                Log.Information($"Applying migration: {migration}");
+                migrator.Migrate(migration);
+            }
+        }
+    }
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseAuthorization();
+    app.MapControllers();
+
+    app.Run();
 }
-if (app.Environment.IsDevelopment())
+catch (Exception ex)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    Log.Fatal(ex, "API terminated unexpectedly");
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}

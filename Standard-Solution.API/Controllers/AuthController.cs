@@ -12,8 +12,13 @@ namespace Standard_Solution.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(IAuthService authService) => _authService = authService;
+    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    {
+        _authService = authService;
+        _logger = logger;
+    }
 
     /// <summary>
     /// User login endpoint.
@@ -28,12 +33,21 @@ public class AuthController : ControllerBase
         try
         {
             var loginResult = await _authService.Login(userLoginData);
+            if (!loginResult.Success)
+            {
+                _logger.LogWarning($"There was a failed attempt to log into this email: {userLoginData.Email}, Time: {DateTime.UtcNow}, User Agent: {Request.Headers.UserAgent}", userLoginData);
+                return Unauthorized("The e-mail or password doesn't match an existing user");
+            }
             return Ok(loginResult);
         }
         catch (Exception ex)
         {
-            // Log the exception (consider using a logging framework)
-            return BadRequest(new { Message = ex.Message });
+            // Custom log error with relevant details
+            _logger.LogError(ex,
+                "Error during login. Email: {Email}, Time: {Time}, User Agent: {UserAgent}",
+                userLoginData.Email, DateTime.UtcNow, Request.Headers.UserAgent);
+
+            return BadRequest(new { Message = "An error occurred during login. Please try again later." });
         }
     }
 
@@ -44,9 +58,6 @@ public class AuthController : ControllerBase
     [HttpPost("signup")]
     public async Task<IActionResult> Register([FromBody] UserSignUpRequest userSignUpData)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         try
         {
             await _authService.SignUpUser(userSignUpData, Request.Headers["origin"]);
@@ -54,8 +65,11 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Log the exception (consider using a logging framework)
-            return BadRequest(new { Message = ex.Message });
+            _logger.LogError(ex,
+                "Error during registration. Email: {Email}, Time: {Time}, Origin: {Origin}, User Agent: {UserAgent}",
+                userSignUpData.Email, DateTime.UtcNow, Request.Headers["origin"], Request.Headers.UserAgent);
+
+            return BadRequest(new { Message = "An error occurred during registration." });
         }
     }
 
@@ -66,8 +80,19 @@ public class AuthController : ControllerBase
     [HttpPost("verify-user-email")]
     public async Task<IActionResult> VerifyUserEmail([FromBody] VerifyEmailRequest verifyEmailDTO)
     {
-        await _authService.VerifyUserEmail(verifyEmailDTO.Email, verifyEmailDTO.Token);
-        return Ok("Email verification completed successfully");
+        try
+        {
+            await _authService.VerifyUserEmail(verifyEmailDTO.Email, verifyEmailDTO.Token);
+            return Ok("Email verification completed successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Error during email verification. Email: {Email}, Token: {Token}, Time: {Time}, User Agent: {UserAgent}",
+                verifyEmailDTO.Email, verifyEmailDTO.Token, DateTime.UtcNow, Request.Headers.UserAgent);
+
+            return BadRequest(new { Message = "An error occurred during email verification." });
+        }
     }
 
     /// <summary>
@@ -87,8 +112,11 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Log the exception (consider using a logging framework)
-            return BadRequest(new { Message = ex.Message });
+            _logger.LogError(ex,
+                "Error during password reset. Email: {Email}, Time: {Time}, User Agent: {UserAgent}",
+                changePasswordRequest.Email, DateTime.UtcNow, Request.Headers.UserAgent);
+
+            return BadRequest(new { Message = "An error occurred during password reset." });
         }
     }
 
@@ -98,8 +126,19 @@ public class AuthController : ControllerBase
     [HttpGet("verify-email-send")]
     public async Task<IActionResult> VerifyEmailSend(string email)
     {
-        await _authService.SendVerifyEmail(email, Request.Headers["origin"]);
-        return Ok("Email sent successfully");
+        try
+        {
+            await _authService.SendVerifyEmail(email, Request.Headers["origin"]);
+            return Ok("Email sent successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Error during email verification link send. Email: {Email}, Time: {Time}, Origin: {Origin}, User Agent: {UserAgent}",
+                email, DateTime.UtcNow, Request.Headers.Origin, Request.Headers.UserAgent);
+
+            return BadRequest(new { Message = "An error occurred while sending email verification." });
+        }
     }
 
     /// <summary>
@@ -116,8 +155,11 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Log the exception (consider using a logging framework)
-            return BadRequest(new { Message = ex.Message });
+            _logger.LogError(ex,
+                "Error during forgot password email send. Email: {Email}, Time: {Time}, Origin: {Origin}, User Agent: {UserAgent}",
+                forgotPasswordRequest.Email, DateTime.UtcNow, Request.Headers.Origin, Request.Headers.UserAgent);
+
+            return BadRequest(new { Message = "An error occurred while sending forgot password email." });
         }
     }
 
@@ -137,16 +179,19 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Log the exception (consider using a logging framework)
-            return BadRequest(new { Message = ex.Message });
+            _logger.LogError(ex,
+                "Error during user update. UserId: {UserId}, Time: {Time}, User Agent: {UserAgent}",
+                id, DateTime.UtcNow, Request.Headers.UserAgent);
+
+            return BadRequest(new { Message = "An error occurred during user update." });
         }
     }
 
     /// <summary>
-    /// Get user by ID endpoint.
+    /// Get user by GUID ID endpoint.
     /// </summary>
     [HttpGet("get-user-by-id/{id}")]
-    public async Task<IActionResult> GetUserById(int id)
+    public async Task<IActionResult> GetUserById(Guid id)
     {
         try
         {
@@ -158,8 +203,11 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Log the exception (consider using a logging framework)
-            return BadRequest(new { Message = ex.Message });
+            _logger.LogError(ex,
+                "Error during fetching user by ID. UserId: {UserId}, Time: {Time}, User Agent: {UserAgent}",
+                id, DateTime.UtcNow, Request.Headers.UserAgent);
+
+            return BadRequest(new { Message = "An error occurred while fetching the user." });
         }
     }
 }
