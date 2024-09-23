@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
             var loginResult = await _authService.Login(userLoginData);
             if (!loginResult.Success)
             {
-                _logger.Warning($"There was a failed attempt to log into this email: {userLoginData.Email}, Time: {DateTime.UtcNow}, User Agent: {Request.Headers.UserAgent}", userLoginData);
+                _logger.Warning($"There was a failed attempt to log into this email: {userLoginData.Email.Replace(Environment.NewLine, string.Empty)}, Time: {DateTime.UtcNow}, User Agent: {Request.Headers.UserAgent}", userLoginData);
                 return Unauthorized("The e-mail or password doesn't match an existing user");
             }
             return Ok(loginResult);
@@ -46,7 +46,7 @@ public class AuthController : ControllerBase
             // Custom log error with relevant details
             _logger.Error(ex,
                 "Error during login. Email: {Email}, Time: {Time}, User Agent: {UserAgent}",
-                userLoginData.Email, DateTime.UtcNow, Request.Headers.UserAgent);
+                userLoginData.Email.Replace(Environment.NewLine, string.Empty), DateTime.UtcNow, Request.Headers.UserAgent);
 
             return BadRequest(new { Message = "An error occurred during login. Please try again later." });
         }
@@ -59,16 +59,17 @@ public class AuthController : ControllerBase
     [HttpPost("signup")]
     public async Task<IActionResult> Register([FromBody] UserSignUpRequest userSignUpData)
     {
+        var sanitizedOrigin = Request.Headers["origin"].ToString().Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
         try
         {
-            await _authService.SignUpUser(userSignUpData, Request.Headers["origin"]);
+            await _authService.SignUpUser(userSignUpData, sanitizedOrigin);
             return CreatedAtAction(nameof(Register), userSignUpData);
         }
         catch (Exception ex)
         {
             _logger.Error(ex,
                 "Error during registration. Email: {Email}, Time: {Time}, Origin: {Origin}, User Agent: {UserAgent}",
-                userSignUpData.Email, DateTime.UtcNow, Request.Headers["origin"], Request.Headers.UserAgent);
+                userSignUpData.Email, DateTime.UtcNow, sanitizedOrigin, Request.Headers.UserAgent);
 
             return BadRequest(new { Message = "An error occurred during registration." });
         }
@@ -81,6 +82,7 @@ public class AuthController : ControllerBase
     [HttpPost("verify-user-email")]
     public async Task<IActionResult> VerifyUserEmail([FromBody] VerifyEmailRequest verifyEmailDTO)
     {
+        var sanitizedEmail = verifyEmailDTO.Email.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
         try
         {
             await _authService.VerifyUserEmail(verifyEmailDTO.Email, verifyEmailDTO.Token);
@@ -89,8 +91,8 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             _logger.Error(ex,
-                "Error during email verification. Email: {Email}, Token: {Token}, Time: {Time}, User Agent: {UserAgent}",
-                verifyEmailDTO.Email, verifyEmailDTO.Token, DateTime.UtcNow, Request.Headers.UserAgent);
+                "Error during email verification. Email: {Email}, Time: {Time}, User Agent: {UserAgent}",
+                sanitizedEmail, DateTime.UtcNow, Request.Headers.UserAgent);
 
             return BadRequest(new { Message = "An error occurred during email verification." });
         }
@@ -127,6 +129,7 @@ public class AuthController : ControllerBase
     [HttpGet("verify-email-send")]
     public async Task<IActionResult> VerifyEmailSend(string email)
     {
+        var sanitizedOrigin = Request.Headers["origin"].ToString().Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
         try
         {
             await _authService.SendVerifyEmail(email, Request.Headers["origin"]);
@@ -136,7 +139,7 @@ public class AuthController : ControllerBase
         {
             _logger.Error(ex,
                 "Error during email verification link send. Email: {Email}, Time: {Time}, Origin: {Origin}, User Agent: {UserAgent}",
-                email, DateTime.UtcNow, Request.Headers.Origin, Request.Headers.UserAgent);
+                email, DateTime.UtcNow, sanitizedOrigin, Request.Headers.UserAgent);
 
             return BadRequest(new { Message = "An error occurred while sending email verification." });
         }
@@ -172,7 +175,7 @@ public class AuthController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-
+        var sanitizedId = id.Replace("\n", "").Replace("\r", "");
         try
         {
             await _authService.EditUser(editUserRequest);
@@ -182,7 +185,7 @@ public class AuthController : ControllerBase
         {
             _logger.Error(ex,
                 "Error during user update. UserId: {UserId}, Time: {Time}, User Agent: {UserAgent}",
-                id, DateTime.UtcNow, Request.Headers.UserAgent);
+                sanitizedId, DateTime.UtcNow, Request.Headers.UserAgent);
 
             return BadRequest(new { Message = "An error occurred during user update." });
         }
