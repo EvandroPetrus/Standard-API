@@ -26,6 +26,7 @@ This repository provides a structured .NET 8 API utilizing **Docker**, **Domain-
 - **Entity Framework Core**
 - **SQL Server** (or any other RDBMS of choice)
 - **Redis** (optional, for caching)
+- **ELK stack / Elastic Stack** (ElasticSearch, Logstash and Kibana, for logging and better debugging)
 
 ## Architecture Overview
 
