@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using Standard_Solution.Domain.DTOs.Request;
 using Standard_Solution.Domain.DTOs.Response;
 using Standard_Solution.Domain.Interfaces.Services;
@@ -12,9 +13,9 @@ namespace Standard_Solution.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly ILogger<AuthController> _logger;
+    private readonly Serilog.ILogger _logger;
 
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    public AuthController(IAuthService authService, Serilog.ILogger logger)
     {
         _authService = authService;
         _logger = logger;
@@ -35,7 +36,7 @@ public class AuthController : ControllerBase
             var loginResult = await _authService.Login(userLoginData);
             if (!loginResult.Success)
             {
-                _logger.LogWarning($"There was a failed attempt to log into this email: {userLoginData.Email}, Time: {DateTime.UtcNow}, User Agent: {Request.Headers.UserAgent}", userLoginData);
+                _logger.Warning($"There was a failed attempt to log into this email: {userLoginData.Email}, Time: {DateTime.UtcNow}, User Agent: {Request.Headers.UserAgent}", userLoginData);
                 return Unauthorized("The e-mail or password doesn't match an existing user");
             }
             return Ok(loginResult);
@@ -43,7 +44,7 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             // Custom log error with relevant details
-            _logger.LogError(ex,
+            _logger.Error(ex,
                 "Error during login. Email: {Email}, Time: {Time}, User Agent: {UserAgent}",
                 userLoginData.Email, DateTime.UtcNow, Request.Headers.UserAgent);
 
@@ -65,7 +66,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
+            _logger.Error(ex,
                 "Error during registration. Email: {Email}, Time: {Time}, Origin: {Origin}, User Agent: {UserAgent}",
                 userSignUpData.Email, DateTime.UtcNow, Request.Headers["origin"], Request.Headers.UserAgent);
 
@@ -87,7 +88,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
+            _logger.Error(ex,
                 "Error during email verification. Email: {Email}, Token: {Token}, Time: {Time}, User Agent: {UserAgent}",
                 verifyEmailDTO.Email, verifyEmailDTO.Token, DateTime.UtcNow, Request.Headers.UserAgent);
 
@@ -112,7 +113,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
+            _logger.Error(ex,
                 "Error during password reset. Email: {Email}, Time: {Time}, User Agent: {UserAgent}",
                 changePasswordRequest.Email, DateTime.UtcNow, Request.Headers.UserAgent);
 
@@ -133,7 +134,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
+            _logger.Error(ex,
                 "Error during email verification link send. Email: {Email}, Time: {Time}, Origin: {Origin}, User Agent: {UserAgent}",
                 email, DateTime.UtcNow, Request.Headers.Origin, Request.Headers.UserAgent);
 
@@ -155,7 +156,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
+            _logger.Error(ex,
                 "Error during forgot password email send. Email: {Email}, Time: {Time}, Origin: {Origin}, User Agent: {UserAgent}",
                 forgotPasswordRequest.Email, DateTime.UtcNow, Request.Headers.Origin, Request.Headers.UserAgent);
 
@@ -179,7 +180,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
+            _logger.Error(ex,
                 "Error during user update. UserId: {UserId}, Time: {Time}, User Agent: {UserAgent}",
                 id, DateTime.UtcNow, Request.Headers.UserAgent);
 
@@ -203,7 +204,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
+            _logger.Error(ex,
                 "Error during fetching user by ID. UserId: {UserId}, Time: {Time}, User Agent: {UserAgent}",
                 id, DateTime.UtcNow, Request.Headers.UserAgent);
 

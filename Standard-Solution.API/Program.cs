@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Serilog;
 using Standard_Solution.API.Extensions;
 using Standard_Solution.API.Filter;
+using Standard_Solution.Domain.Interfaces.Services;
 using Standard_Solution.Domain.Models;
 using Standard_Solution.Infra.Contexts.SQL;
+using Standard_Solution.Service.Services.RabbitMq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,8 +36,13 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.Password.RequiredLength = 8;
 }).AddEntityFrameworkStores<Standard_SolutionDbContext>().AddDefaultTokenProviders();
 
+var connectionString = builder.Configuration.GetConnectionString("Standard_SolutionConnectionString");
+if (string.IsNullOrEmpty(connectionString))
+    throw new InvalidOperationException("Connection string 'Standard_SolutionConnectionString' is not configured.");
+
+
 builder.Services.AddDbContext<Standard_SolutionDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Standard_SolutionConnectionString"),
+    options.UseSqlServer(connectionString,
     sqlOptions => sqlOptions.MigrationsAssembly("Standard-Solution.Infra")));
 
 var app = builder.Build();
@@ -47,6 +54,10 @@ try
     // (auto-applies migrations, so it can mess up with version control)
     using (var scope = app.Services.CreateScope())
     {
+        var rabbitMqConnectionService = scope.ServiceProvider.GetRequiredService<IRabbitMqConnectionService>();
+        if (!rabbitMqConnectionService.TryConnect())
+            throw new Exception("Failed to connect to RabbitMQ.");
+
         var services = scope.ServiceProvider;
         var context = services.GetRequiredService<Standard_SolutionDbContext>();
         var migrator = context.GetService<IMigrator>();
