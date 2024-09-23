@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Serilog;
 
 namespace Standard_Solution.Infra.Contexts.NoSQL;
 
@@ -8,9 +8,9 @@ public class MongoDbContext
 {
     private readonly MongoDbSettings _mongoDbSettings;
     private readonly IMongoDatabase _mongoDatabase;
-    private readonly ILogger<MongoDbContext> _logger;
+    private readonly ILogger _logger;
 
-    public MongoDbContext(IOptions<MongoDbSettings> mongoDbSettings, ILogger<MongoDbContext> logger)
+    public MongoDbContext(IOptions<MongoDbSettings> mongoDbSettings, ILogger logger)
     {
         _mongoDbSettings = mongoDbSettings?.Value ?? throw new ArgumentNullException(nameof(mongoDbSettings));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -32,7 +32,7 @@ public class MongoDbContext
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while initializing the MongoDB client.");
+            _logger.Error(ex, "An error occurred while initializing the MongoDB client.");
             throw;
         }
     }

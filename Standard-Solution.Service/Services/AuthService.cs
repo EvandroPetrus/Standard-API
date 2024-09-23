@@ -13,17 +13,19 @@ public class AuthService : IAuthService
     private readonly ITokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IRabbitMqService _rabbitMqService;
     public AuthService(IEmailService emailService,
                        IUnitOfWork unitOfWork,
                        IMapper mapper,
-                       ITokenService tokenService)
+                       ITokenService tokenService,
+                       IRabbitMqService rabbitMqService)
     {
         _emailService = emailService;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _tokenService = tokenService;
+        _rabbitMqService = rabbitMqService;
     }
-
     public async Task SignUpUser(UserSignUpRequest newUserRequest, string origin)
     {
         if (await _unitOfWork.Users.GetUserByEmail(newUserRequest.Email) is not null)
@@ -38,14 +40,15 @@ public class AuthService : IAuthService
         {
             string token = await _unitOfWork.Users.GenerateTokenVerifyEmail(user);
 
-            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates", "E-mail confirmation", "VerificarEmail.html");
+            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates", "E-mail confirmation", "VerifyAccount.html");
 
-            _emailService.SendEmail(user.UserName, user.Email, templatePath, token, "Verify your email");
+            var emailConfig = new EmailConfigurations(user.Email, user.UserName, templatePath, "Verify your email");
+            _rabbitMqService.PublishMessage(emailConfig);
         }
         else
             throw new InvalidOperationException("User registration failed! Please check user details and try again.");
-
     }
+
     public async Task<UserLoginResponse> Login(UserLoginRequest userLoginRequest)
     {
         var user = await _unitOfWork.Users.GetUserByEmail(userLoginRequest.Email);
@@ -71,15 +74,17 @@ public class AuthService : IAuthService
         {
             string token = await _unitOfWork.Users.GenerateTokenVerifyEmail(user);
 
-            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "templates", "VerificarEmail.html");
+            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates", "E-mail confirmation", "VerifyAccount.html");
 
-            _emailService.SendEmail(user.UserName, user.Email, templatePath, token, "Verify your email");
+            var emailConfig = new EmailConfigurations(user.Email, user.UserName, templatePath, "Verify your email");
+            _rabbitMqService.PublishMessage(emailConfig);
 
             var response = _mapper.Map<User, UserExistsEmailResponse>(user);
             response.UserExists = true;
             return response;
         }
     }
+
     public async Task VerifyUserEmail(string email, string token)
     {
         var user = await _unitOfWork.Users.GetUserByEmail(email) ?? throw new InvalidOperationException("User not found.");
@@ -127,6 +132,7 @@ public class AuthService : IAuthService
 
         string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates", "Password reset", "ForgotPassword.html");
 
-        _emailService.SendEmail(user.UserName, user.Email, templatePath, token, "Reset your password");
+        var emailConfig = new EmailConfigurations(user.Email, user.UserName, templatePath, "Reset your password");
+        _rabbitMqService.PublishMessage(emailConfig);
     }
 }
