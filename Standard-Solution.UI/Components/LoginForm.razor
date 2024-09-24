@@ -1,0 +1,28 @@
+﻿@inject IAuthService AuthService
+
+<EditForm Model="@loginRequest" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <MudTextField T="string" Label="Email" @bind-Value="loginRequest.Email" For="@(() => loginRequest.Email)" />
+    <MudTextField T="string" Label="Password" @bind-Value="loginRequest.Password" For="@(() => loginRequest.Password)" InputType="InputType.Password" />
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3">Login</MudButton>
+</EditForm>
+
+@code {
+    private LoginRequest loginRequest = new LoginRequest();
+
+    [Parameter]
+    public EventCallback OnLoginSuccess { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        var result = await AuthService.Login(loginRequest);
+        if (result.Success)
+        {
+            await OnLoginSuccess.InvokeAsync();
+        }
+        else
+        {
+            // log failure
+        }
+    }
+}
