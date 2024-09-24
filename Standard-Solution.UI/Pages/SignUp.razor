@@ -1,0 +1,25 @@
+﻿@page "/signup"
+@using Standard_Solution.UI.Components
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
+    <MudCard>
+        <MudCardHeader>
+            <MudText Typo="Typo.h5">Sign up</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <SignUpForm OnSignUpSuccess="@HandleValidSubmit" />
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => NavigationManager.NavigateTo("/"))">Back to Login</MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudContainer>
+@code {
+    private void HandleValidSubmit()
+    {
+        Snackbar.Add("Sign up successful!", Severity.Success);
+        NavigationManager.NavigateTo("/");
+    }
+}
