@@ -1,0 +1,29 @@
+﻿@inject IAuthService AuthService
+
+<EditForm Model="@signUpRequest" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <MudTextField T="string" Label="Email" @bind-Value="signUpRequest.Email" For="@(() => signUpRequest.Email)" />
+    <MudTextField T="string" Label="Password" @bind-Value="signUpRequest.Password" For="@(() => signUpRequest.Password)" InputType="InputType.Password" />
+    <MudTextField T="string" Label="Confirm Password" @bind-Value="signUpRequest.PasswordCheck" For="@(() => signUpRequest.PasswordCheck)" InputType="InputType.Password" />
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3">Sign Up</MudButton>
+</EditForm>
+
+@code {
+    private SignUpRequest signUpRequest = new SignUpRequest();
+
+    [Parameter]
+    public EventCallback OnSignUpSuccess { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        if (signUpRequest.Password != signUpRequest.PasswordCheck)
+        {
+            // Handle password mismatch
+            return;
+        }
+
+        await AuthService.SignUpUser(signUpRequest);
+        await OnSignUpSuccess.InvokeAsync();
+    }
+}

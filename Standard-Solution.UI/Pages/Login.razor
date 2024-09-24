@@ -1,0 +1,27 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@using Standard_Solution.UI.Components
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
+    <MudCard>
+        <MudCardHeader>
+            <MudText Typo="Typo.h5">Login</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <LoginForm OnLoginSuccess="HandleLoginSuccess" />
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Text" Class="" Color="Color.Primary" OnClick="@(() => NavigationManager.NavigateTo("/forgot-password"))">Forgot Password?</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => NavigationManager.NavigateTo("/signup"))">Don't have an account yet?</MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private void HandleLoginSuccess()
+    {
+        Snackbar.Add("Login successful!", Severity.Success);
+        NavigationManager.NavigateTo("/");
+    }
+}
