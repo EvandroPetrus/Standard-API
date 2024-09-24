@@ -8,7 +8,7 @@ public static class CorsConfigurationExtension
             options.AddPolicy("AllowSpecificOrigin",
                 policy =>
                 {
-                    policy.WithOrigins("")
+                    policy.WithOrigins("http://localhost:5178")
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
